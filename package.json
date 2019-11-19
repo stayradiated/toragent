@@ -39,5 +39,10 @@
     "@stayradiated/pkg": "3.6.0",
     "@types/request": "2.48.3",
     "request": "2.88.0"
+  },
+  "release-it": {
+    "hooks": {
+      "after:bump": "npm run build"
+    }
   }
 }
