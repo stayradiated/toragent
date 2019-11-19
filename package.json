@@ -1,14 +1,17 @@
 {
-  "name": "toragent",
-  "version": "0.1.1",
+  "name": "@stayradiated/toragent",
+  "version": "1.0.0",
   "description": "Easily create and manage Tor requests",
-  "main": "lib/agent.js",
+  "main": "./dist/agent.js",
+  "types": "./dist/agent.d.ts",
   "scripts": {
-    "test": "mocha test"
+    "build": "pkg-build",
+    "tidy": "pkg-tidy",
+    "test": "pkg-test"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/danielstjules/toragent.git"
+    "url": "git+https://github.com/stayradiated/toragent.git"
   },
   "keywords": [
     "tor",
@@ -17,21 +20,24 @@
     "client",
     "connection"
   ],
-  "author": "Daniel St. Jules <danielst.jules@gmail.com> (http://danielstjules.com/)",
+  "contributors": [
+    "George Czabania <george@czabania.com>",
+    "Daniel St. Jules <danielst.jules@gmail.com> (http://danielstjules.com/)"
+  ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/danielstjules/toragent/issues"
+    "url": "https://github.com/stayradiated/toragent/issues"
   },
-  "homepage": "https://github.com/danielstjules/toragent#readme",
+  "homepage": "https://github.com/stayradiated/toragent#readme",
   "dependencies": {
-    "bluebird": "^2.9.34",
+    "delay": "4.3.0",
+    "execa": "3.3.0",
     "openports": "0.0.1",
-    "socks5-client": "1.1.2",
-    "tmp": "0.0.27"
+    "socks5-client": "1.2.8"
   },
   "devDependencies": {
-    "chai": "^3.2.0",
-    "mocha": "^2.2.5",
-    "request": "^2.60.0"
+    "@stayradiated/pkg": "3.6.0",
+    "@types/request": "2.48.3",
+    "request": "2.88.0"
   }
 }

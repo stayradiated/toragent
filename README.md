@@ -20,7 +20,6 @@ Works with promises.
 
 ``` javascript
 var TorAgent = require('toragent');
-var Promise  = require('bluebird');
 var request  = Promise.promisify(require('request'));
 
 TorAgent.create().then((agent) => {
