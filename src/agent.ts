@@ -1,6 +1,6 @@
 import { Agent, AgentOptions } from 'http'
 import tls from 'tls'
-import socksClient, { CreateConnectionOptions } from 'socks5-client'
+import socksClient from 'socks5-client'
 import openports from 'openports'
 import Tor from './tor'
 import { join } from 'path'
@@ -10,6 +10,18 @@ type TorAgentOptions = AgentOptions & {
   socksHost?: string,
   socksPort?: number,
   tor: Tor,
+}
+
+interface CreateConnectionOptions {
+  socket: any,
+  hostname: string,
+  host: string,
+  servername: string,
+  port: number,
+  protocol: string,
+  uri: {
+    protocol: string,
+  },
 }
 
 /**
