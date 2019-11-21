@@ -1,8 +1,9 @@
-import SocksHttpAgent from 'socks5-http-client/lib/Agent'
 import openports from 'openports'
-import Tor from './tor'
 import { join } from 'path'
 import { tmpdir } from 'os'
+
+import { SocksHttpAgent } from './socks'
+import Tor from './tor'
 
 type TorAgentOptions = {
   socksHost?: string,
