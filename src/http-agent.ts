@@ -1,33 +1,19 @@
-import { Agent, AgentOptions } from 'http'
-import tls from 'tls'
-import socksClient from 'socks5-client'
+import SocksHttpAgent from 'socks5-http-client/lib/Agent'
 import openports from 'openports'
 import Tor from './tor'
 import { join } from 'path'
 import { tmpdir } from 'os'
 
-type TorAgentOptions = AgentOptions & {
+type TorAgentOptions = {
   socksHost?: string,
   socksPort?: number,
   tor: Tor,
 }
 
-interface CreateConnectionOptions {
-  socket: any,
-  hostname: string,
-  host: string,
-  servername: string,
-  port: number,
-  protocol: string,
-  uri: {
-    protocol: string,
-  },
-}
-
 /**
  * An HTTP Agent for proxying requests through Tor using SOCKS5.
  */
-class TorAgent extends Agent {
+class TorAgent extends SocksHttpAgent {
   /**
    * Spawns a Tor process listening on a random unused port, and creates an
    * agent for use with HTTP(S) requests. The optional verbose param will enable
@@ -37,16 +23,18 @@ class TorAgent extends Agent {
    * microdescriptors or any other state, bootstrapping can take between 15 - 60s.
    * The resulting child process is automatically killed when node exits.
    */
-  static async create (verbose?: boolean) {
+  static async create (options: { verbose?: boolean } = {}) {
+    const { verbose } = options
+
     const ports = await openports(1)
     const port = ports[0]
     const dir = join(tmpdir(), `toragent-${Date.now()}`)
     if (verbose) {
-      console.log('Spawning Tor')
+      console.info('Spawning Tor')
     }
     const tor = await Tor.spawn(port, dir, 30000)
     if (verbose) {
-      console.log(
+      console.info(
         'Tor spawned with pid',
         tor.process.pid,
         'listening on',
@@ -61,24 +49,16 @@ class TorAgent extends Agent {
     })
   }
 
-  public readonly socksHost: string
-  public readonly socksPort: number
-  public readonly defaultPort: number
   public readonly tor: Tor
-  public readonly protocol: string
 
   constructor (options: TorAgentOptions) {
-    super(options)
-
-    this.socksHost = options.socksHost || 'localhost'
-    this.socksPort = options.socksPort || 9050
-    this.defaultPort = 80
+    super({
+      socksHost: options.socksHost || 'localhost',
+      socksPort: options.socksPort || 9050,
+    })
 
     // Used when invoking TorAgent.create
     this.tor = options.tor
-
-    // Prevent protocol check
-    this.protocol = null
   }
 
   /**
@@ -96,38 +76,6 @@ class TorAgent extends Agent {
   destroy () {
     super.destroy()
     return this.tor.destroy()
-  }
-
-  /**
-   * Creates a TCP connection through the specified SOCKS5 server. Updates the
-   * request options object to handle both HTTP and HTTPs.
-   */
-  createConnection (options: CreateConnectionOptions) {
-    const socksSocket = socksClient.createConnection(options)
-
-    const onProxied = socksSocket.onProxied
-
-    socksSocket.onProxied = () => {
-      options.socket = socksSocket.socket
-
-      if (options.hostname) {
-        options.servername = options.hostname
-      } else if (options.host) {
-        options.servername = options.host.split(':')[0]
-      }
-
-      socksSocket.socket = tls.connect(options, () => {
-        // Set the 'authorized flag for clients that check it.
-        socksSocket.authorized = socksSocket.socket.authorized
-        onProxied.call(socksSocket)
-      })
-
-      socksSocket.socket.on('error', (error: Error) => {
-        socksSocket.emit('error', error)
-      })
-    }
-
-    return socksSocket
   }
 }
 

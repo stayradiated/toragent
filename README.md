@@ -11,43 +11,23 @@ Compatible with `http.request` and libraries like `request`.
 Requires Node >= 4.
 
 ```
-npm install --save toragent
+npm install --save @stayradiated/toragent
 ```
 
 ## Overview
 
 Works with promises.
 
-``` javascript
-var TorAgent = require('toragent');
-var request  = Promise.promisify(require('request'));
+```typescript
+import { TorHttpsAgent } from '@stayradiated/toragent'
+import got from 'got'
 
-TorAgent.create().then((agent) => {
-  return request({
-    url: 'https://www.google.com',
-    agent: agent,
-  });
-}).spread((res, body) => {
-  console.log(body);
-});
-```
+const agent = await TorHttpsAgent.create()
 
-And callbacks too!
-
-``` javascript
-var TorAgent = require('toragent');
-var request  = require('request');
-
-TorAgent.create(false, (err, agent) => {
-  if (err) return console.log(err);
-
-  request({
-    url: 'https://www.google.com',
-    agent: agent,
-  }, (err, res, body) => {
-    console.log(err || body);
-  });
-});
+const response = await got({
+  url: 'https://www.google.com',
+  agent
+})
 ```
 
 ## TorAgent

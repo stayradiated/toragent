@@ -1,36 +1,48 @@
 import anyTest, { TestInterface } from 'ava'
-import request from 'request'
-import { promisify } from 'util'
+import got from 'got'
 
-import TorAgent from '../agent'
+import { TorHttpsAgent, TorHttpAgent } from '../index'
 import { isProcessRunning } from './helpers'
 
-const requestAsync = promisify(request)
-
 const test = anyTest as TestInterface<{
-  agent: TorAgent,
+  httpAgent: TorHttpAgent,
+  httpsAgent: TorHttpsAgent,
 }>
 
 test.before(async (t) => {
-  const agent = await TorAgent.create(true)
-  t.context = { agent }
+  const httpsAgent = await TorHttpsAgent.create({ verbose: true })
+  const httpAgent = await new TorHttpAgent(httpsAgent)
+
+  t.context = { httpAgent, httpsAgent }
 })
 
 test('spawns a tor process', async (t) => {
-  const { agent } = t.context
+  const { httpsAgent } = t.context
 
-  const pid = agent.tor.process.pid
+  const pid = httpsAgent.tor.process.pid
 
   const running = await isProcessRunning(pid)
   t.true(running)
 })
 
-test('can be used with request', async (t) => {
-  const { agent } = t.context
+test('can be used with got and HTTP', async (t) => {
+  const { httpAgent } = t.context
 
-  const res = await requestAsync({
+  const res = await got({
+    url: 'http://www.neverssl.com',
+    agent: httpAgent,
+  })
+
+  // Could be blocked
+  t.true(res.statusCode === 200 || res.statusCode === 503)
+})
+
+test('can be used with got and HTTPS', async (t) => {
+  const { httpsAgent } = t.context
+
+  const res = await got({
     url: 'https://www.google.com',
-    agent: agent,
+    agent: httpsAgent,
   })
 
   // Could be blocked
@@ -38,10 +50,10 @@ test('can be used with request', async (t) => {
 })
 
 test('closes the tor process when calling destroy', async (t) => {
-  const agent = await TorAgent.create(true)
-  const pid = agent.tor.process.pid
+  const httpsAgent = await TorHttpsAgent.create({ verbose: true })
+  const pid = httpsAgent.tor.process.pid
 
-  await agent.destroy()
+  await httpsAgent.destroy()
 
   const running = await isProcessRunning(pid)
   t.false(running)

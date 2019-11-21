@@ -33,12 +33,13 @@
     "delay": "4.3.0",
     "execa": "3.3.0",
     "openports": "0.0.1",
-    "socks5-client": "1.2.8"
+    "socks5-http-client": "1.0.4",
+    "socks5-https-client": "1.2.1"
   },
   "devDependencies": {
     "@stayradiated/pkg": "3.6.0",
-    "@types/request": "2.48.3",
-    "request": "2.88.0"
+    "got": "10.0.0-beta.1",
+    "type-fest": "0.8.1"
   },
   "release-it": {
     "hooks": {

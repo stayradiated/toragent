@@ -16,8 +16,6 @@ class Tor {
    */
   static spawn (port: number, dir: string, retryTimeout: number): Promise<Tor> {
     return new Promise(function (resolve, reject) {
-      console.log({ port, dir })
-
       const child = spawn('tor', [
         '--SOCKSPort',
         port.toString(),
@@ -42,8 +40,6 @@ class Tor {
       }
 
       const listener = function (data: Buffer) {
-        console.log(data.toString('utf8'))
-
         if (data.toString('utf8').indexOf('Done') === -1) return
 
         child.stdout.removeListener('data', listener)
